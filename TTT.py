@@ -74,6 +74,6 @@ while True:
     user = input('Play?(Y/N) ')
     if user.lower() == 'y':
         order = int(input('Would you like to go first(X) or second(O)? (1/2)? '))
-        main(order)
+        main(int(order))
     else:
         break
