@@ -12,7 +12,7 @@ How to Run
 ------------
 To run the program you won't need any other libraries. 
 
-	python ./TTT.py
+	python3.6 TTT.py
 
 How to Play
 ------------
