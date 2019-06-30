@@ -42,7 +42,7 @@ def winningPlayer(brd, player):
     return False
 
 
-def gameOver(brd):
+def gameWon(brd):
     return winningPlayer(brd, XPLAYER) or winningPlayer(brd, OPLAYER)
 
 
@@ -111,7 +111,7 @@ def getScore(brd):
 def MiniMaxAB(brd, depth, alpha, beta, player):
     row = -1
     col = -1
-    if depth == 0 or gameOver(brd):
+    if depth == 0 or gameWon(brd):
         return [row, col, getScore(brd)]
 
     else:
@@ -171,14 +171,19 @@ def AI2Move(brd):
 
 def AIvsAI():
     currentPlayer = XPLAYER
-    for x in range(10):
+    count = 0
+    for x in range(1000):
         clearBoard(board)
 
-        while not (boardFull(board) or gameOver(board)):
+        while not (boardFull(board) or gameWon(board)):
             makeMove(board, currentPlayer, 2)
             currentPlayer *= -1
 
         printResult(board)
+        if gameWon(board):
+            count += 1
+
+    print('Number of AI vs AI wins =', count)
 
 
 def makeMove(brd, player, mode):
@@ -212,7 +217,7 @@ def playerVSai():
     else:
         currentPlayer = XPLAYER
 
-    while not (boardFull(board) or gameOver(board)):
+    while not (boardFull(board) or gameWon(board)):
         makeMove(board, currentPlayer, 1)
         currentPlayer *= -1
 
