@@ -6,8 +6,8 @@ OPLAYER = -1
 EMPTY = 0
 
 board = [[EMPTY, EMPTY, EMPTY],
-             [EMPTY, EMPTY, EMPTY],
-             [EMPTY, EMPTY, EMPTY]]
+         [EMPTY, EMPTY, EMPTY],
+         [EMPTY, EMPTY, EMPTY]]
 
 
 def printBoard(brd):
@@ -16,7 +16,8 @@ def printBoard(brd):
         for y in x:
             ch = chars[y]
             print(f'| {ch} |', end='')
-        print('\n'+'---------------')
+        print('\n' + '---------------')
+    print('===============')
 
 
 def clearBoard(brd):
@@ -35,7 +36,7 @@ def gameOver(brd, player):
                      [brd[0][0], brd[1][1], brd[2][2]],
                      [brd[0][2], brd[1][1], brd[2][0]]]
 
-    if [player,player,player] in winningStates:
+    if [player, player, player] in winningStates:
         return True
 
     return False
@@ -63,82 +64,40 @@ def setMove(brd, x, y, player):
 
 def playerMove(brd):
     e = True
-    moves = {1:[0, 0], 2:[0, 1], 3:[0, 2],
-             4:[1, 0], 5:[1, 1], 6:[1, 2],
-             7:[2, 0], 8:[2, 1], 9:[2, 2]}
+    moves = {1: [0, 0], 2: [0, 1], 3: [0, 2],
+             4: [1, 0], 5: [1, 1], 6: [1, 2],
+             7: [2, 0], 8: [2, 1], 9: [2, 2]}
     while e:
         try:
             move = int(input('Pick a position(1-9)'))
             if move < 1 or move > 9:
                 print('Invalid location! ')
-            elif not(moves[move] in emptyCells(brd)):
+            elif not (moves[move] in emptyCells(brd)):
                 print('Location filled')
             else:
-                setMove(brd, moves[move][0],moves[move][1], XPLAYER)
+                setMove(brd, moves[move][0], moves[move][1], XPLAYER)
                 printBoard(brd)
                 e = False
         except(KeyError, ValueError):
             print('Please pick a number!')
 
 
-def evaluate(brd):
-    score = 0
-    score += evaluateLine(brd, 0, 0, 0, 1, 0, 2)
-    score += evaluateLine(brd, 1, 0, 1, 1, 1, 2)
-    score += evaluateLine(brd, 2, 0, 2, 1, 2, 2)
-    score += evaluateLine(brd, 0, 0, 1, 0, 2, 0)
-    score += evaluateLine(brd, 0, 1, 1, 1, 2, 1)
-    score += evaluateLine(brd, 0, 2, 1, 2, 2, 2)
-    score += evaluateLine(brd, 0, 0, 1, 1, 2, 2)
-    score += evaluateLine(brd, 0, 2, 1, 1, 2, 0)
-    return score
+def evaluate(brd, player):
+    if player == XPLAYER and gameOver(brd, player):
+        return 10
 
+    elif player == OPLAYER and gameOver(brd, player):
+        return -10
 
-def evaluateLine(brd, x1, y1, x2, y2, x3, y3):
-    score = 0
-    if brd[x1][y1] == XPLAYER:
-        score = 1
-    elif brd[x1][y1] == OPLAYER:
-        score = 1
-
-    if brd[x2][y2] == XPLAYER:
-        if score == 1:
-            score = 10
-        elif score == -1:
-            return 0
-        else:
-            score = 1
-    elif brd[x2][y2] == OPLAYER:
-        if score == -1:
-            score = 10
-        elif score == 1:
-            return 0
-        else:
-            score = -1
-
-    if brd[x3][y3] == XPLAYER:
-        if score > 0:
-            score *= 10
-        elif score < 0:
-            return 0
-        else:
-            score = 1
-    elif brd[x3][y3] == OPLAYER:
-        if score < 0:
-            score *= -10
-        elif score > 0:
-            return 0
-        else:
-            score = -1
-
-    return score
+    else:
+        return 0
 
 
 def MiniMaxAB(brd, depth, alpha, beta, player):
     row = -1
     col = -1
     if depth == 0 or gameOver(brd, player):
-        return [-1, -1, evaluate(brd)]
+        return [-1, -1, evaluate(brd, player)]
 
     else:
         for cell in emptyCells(brd):
@@ -150,10 +109,11 @@ def MiniMaxAB(brd, depth, alpha, beta, player):
                     row = cell[0]
                     col = cell[1]
 
-            elif score < beta:
-                beta = score
-                row = cell[0]
-                col = cell[1]
+            else:
+                if score < beta:
+                    beta = score
+                    row = cell[0]
+                    col = cell[1]
 
             setMove(brd, cell[0], cell[1], EMPTY)
 
@@ -180,33 +140,77 @@ def AIMove(brd):
         printBoard(brd)
 
 
+def AI2Move(brd):
+    if len(emptyCells(brd)) == 9:
+        x = choice([0, 1, 2])
+        y = choice([0, 1, 2])
+        setMove(brd, x, y, XPLAYER)
+        printBoard(brd)
+
+    else:
+        result = MiniMaxAB(brd, len(emptyCells(brd)), -inf, inf, XPLAYER)
+        setMove(brd, result[0], result[1], XPLAYER)
+        printBoard(brd)
+
+
+def AIvsAI():
+    for x in range(10):
+        clearBoard(board)
+
+        while True:
+            AIMove(board)
+            if gameOver(board, OPLAYER) or boardFull(board):
+                break
+            AI2Move(board)
+            if gameOver(board, XPLAYER) or boardFull(board):
+                break
+
+        if gameOver(board, XPLAYER):
+            print('X has won! ' + '\n')
+
+        elif gameOver(board, OPLAYER):
+            print('O\'s have won! ' + '\n')
+
+        else:
+            print('Draw' + '\n')
+
+
 def main():
     while True:
         user = input('Play?(Y/N) ')
         order = -1
         if user.lower() == 'y':
-            while True:
-                try:
-                    order = int(input('Would you like to go first or second? (1/2)? '))
-                    if not(order == 1 or order == 2):
-                        print('Please pick 1 or 2')
-                    else:
-                        break
-                except(KeyError, ValueError):
-                    print('Enter a number')
+            t = input('AI vs AI or Player vs AI(1/2)')
+            if int(t) == 1:
+                AIvsAI()
+                break
+            else:
+                while True:
+                    try:
+                        order = int(input('Would you like to go first or second? (1/2)? '))
+                        if not (order == 1 or order == 2):
+                            print('Please pick 1 or 2')
+                        else:
+                            break
+                    except(KeyError, ValueError):
+                        print('Enter a number')
         else:
             print('Bye!')
             exit()
 
         clearBoard(board)
 
-        while not(boardFull(board) or gameOver(board, XPLAYER) or gameOver(board, OPLAYER)):
+        while True:
             if order == 2:
                 AIMove(board)
                 order = ''
 
             playerMove(board)
+            if gameOver(board, XPLAYER) or boardFull(board):
+                break
             AIMove(board)
+            if gameOver(board, OPLAYER) or boardFull(board):
+                break
 
         if gameOver(board, XPLAYER):
             print('X has won! ')
