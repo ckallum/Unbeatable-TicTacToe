@@ -26,7 +26,7 @@ def clearBoard(brd):
             brd[x][y] = EMPTY
 
 
-def gameOver(brd, player):
+def winningPlayer(brd, player):
     winningStates = [[brd[0][0], brd[0][1], brd[0][2]],
                      [brd[1][0], brd[1][1], brd[1][2]],
                      [brd[2][0], brd[2][1], brd[2][2]],
@@ -40,6 +40,21 @@ def gameOver(brd, player):
         return True
 
     return False
+
+
+def gameOver(brd):
+    return winningPlayer(brd, XPLAYER) or winningPlayer(brd, OPLAYER)
+
+
+def printResult(brd):
+    if winningPlayer(brd, XPLAYER):
+        print('X has won! ' + '\n')
+
+    elif winningPlayer(brd, OPLAYER):
+        print('O\'s have won! ' + '\n')
+
+    else:
+        print('Draw' + '\n')
 
 
 def emptyCells(brd):
@@ -82,11 +97,11 @@ def playerMove(brd):
             print('Please pick a number!')
 
 
-def evaluate(brd, player):
-    if player == XPLAYER and gameOver(brd, player):
+def getScore(brd):
+    if winningPlayer(brd, XPLAYER):
         return 10
 
-    elif player == OPLAYER and gameOver(brd, player):
+    elif winningPlayer(brd, OPLAYER):
         return -10
 
     else:
@@ -96,22 +111,23 @@ def evaluate(brd, player):
 def MiniMaxAB(brd, depth, alpha, beta, player):
     row = -1
     col = -1
-    if depth == 0 or gameOver(brd, player):
-        return [-1, -1, evaluate(brd, player)]
+    if depth == 0 or gameOver(brd):
+        return [row, col, getScore(brd)]
 
     else:
         for cell in emptyCells(brd):
             setMove(brd, cell[0], cell[1], player)
-            score = MiniMaxAB(brd, depth - 1, alpha, beta, -player)[2]
+            score = MiniMaxAB(brd, depth - 1, alpha, beta, -player)
             if player == XPLAYER:
-                if score > alpha:
-                    alpha = score
+                # X is always the max player
+                if score[2] > alpha:
+                    alpha = score[2]
                     row = cell[0]
                     col = cell[1]
 
             else:
-                if score < beta:
-                    beta = score
+                if score[2] < beta:
+                    beta = score[2]
                     row = cell[0]
                     col = cell[1]
 
@@ -154,72 +170,67 @@ def AI2Move(brd):
 
 
 def AIvsAI():
+    currentPlayer = XPLAYER
     for x in range(10):
         clearBoard(board)
 
-        while True:
-            AIMove(board)
-            if gameOver(board, OPLAYER) or boardFull(board):
-                break
-            AI2Move(board)
-            if gameOver(board, XPLAYER) or boardFull(board):
-                break
+        while not (boardFull(board) or gameOver(board)):
+            makeMove(board, currentPlayer, 2)
+            currentPlayer *= -1
 
-        if gameOver(board, XPLAYER):
-            print('X has won! ' + '\n')
+        printResult(board)
 
-        elif gameOver(board, OPLAYER):
-            print('O\'s have won! ' + '\n')
+
+def makeMove(brd, player, mode):
+    if mode == 1:
+        if player == XPLAYER:
+            playerMove(brd)
 
         else:
-            print('Draw' + '\n')
+            AIMove(brd)
+    else:
+        if player == XPLAYER:
+            AIMove(brd)
+        else:
+            AI2Move(brd)
+
+
+def playerVSai():
+    while True:
+        try:
+            order = int(input('Would you like to go first or second? (1/2)? '))
+            if not (order == 1 or order == 2):
+                print('Please pick 1 or 2')
+            else:
+                break
+        except(KeyError, ValueError):
+            print('Enter a number')
+
+    clearBoard(board)
+    if order == 2:
+        currentPlayer = OPLAYER
+    else:
+        currentPlayer = XPLAYER
+
+    while not (boardFull(board) or gameOver(board)):
+        makeMove(board, currentPlayer, 1)
+        currentPlayer *= -1
+
+    printResult(board)
 
 
 def main():
     while True:
         user = input('Play?(Y/N) ')
-        order = -1
         if user.lower() == 'y':
             t = input('AI vs AI or Player vs AI(1/2)')
             if int(t) == 1:
                 AIvsAI()
-                break
             else:
-                while True:
-                    try:
-                        order = int(input('Would you like to go first or second? (1/2)? '))
-                        if not (order == 1 or order == 2):
-                            print('Please pick 1 or 2')
-                        else:
-                            break
-                    except(KeyError, ValueError):
-                        print('Enter a number')
+                playerVSai()
         else:
             print('Bye!')
             exit()
-
-        clearBoard(board)
-
-        while True:
-            if order == 2:
-                AIMove(board)
-                order = ''
-
-            playerMove(board)
-            if gameOver(board, XPLAYER) or boardFull(board):
-                break
-            AIMove(board)
-            if gameOver(board, OPLAYER) or boardFull(board):
-                break
-
-        if gameOver(board, XPLAYER):
-            print('X has won! ')
-
-        elif gameOver(board, OPLAYER):
-            print('O\'s have won! ')
-
-        else:
-            print('Draw')
 
 
 if __name__ == '__main__':
