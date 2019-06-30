@@ -20,6 +20,7 @@ How to Play
   
   There are two options: 
   1. AI vs AI
-  	- This tests that the AI works by demonstrating every game ends in a draw. It runs 10000 iterations of the game of the AI playing against itself. The count at the end demonstrates that all games were a draw 
+  - This mode functions as a test to demonstrate that the AI works by showing every game ends in a draw. It runs 10000 iterations of the game of the AI playing against itself. The count at the end displays the amount of times either of the AI's won a game, this count should be 0.
+  
   2. AI vs Player
-  	- The user plays versus the AI as many times as the player wants to. The AI should never lose.
+  - The user plays versus the AI as many times as the player wants to. The AI should never lose.
