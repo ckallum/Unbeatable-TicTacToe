@@ -16,4 +16,10 @@ To run the program you won't need any other libraries.
 
 How to Play
 ------------
-  To play the game you simply have to run and follow the text based instructions displayed on the terminal
+  To play the game you simply have to run and follow the text based instructions displayed on the terminal.
+  
+  There are two options: 
+  1. AI vs AI
+  	- This tests that the AI works by demonstrating every game ends in a draw. It runs 10000 iterations of the game of the AI playing against itself. The count at the end demonstrates that all games were a draw 
+  2. AI vs Player
+  	- The user plays versus the AI as many times as the player wants to. The AI should never lose.
